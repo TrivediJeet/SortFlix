@@ -7,29 +7,15 @@ import { useSortingContext } from "@/context/sortingcontext";
 const Controls: React.FC = () => {
   const {
     isSorting,
-    setIsSorting,
+    startSorting,
+    startAutoSorting,
+    pauseAutoSorting,
     speed,
     setSpeed,
     step,
     resetArray,
     selectedAlgorithm,
   } = useSortingContext();
-
-  const handleStart = () => {
-    setIsSorting(true);
-  };
-
-  const handlePause = () => {
-    setIsSorting(false);
-  };
-
-  const handleStep = () => {
-    step();
-  };
-
-  const handleReset = () => {
-    resetArray();
-  };
 
   const handleSpeedChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSpeed(parseInt(event.target.value, 10));
@@ -39,33 +25,46 @@ const Controls: React.FC = () => {
     <div className="mt-4 flex justify-center space-x-4">
       {!isSorting && (
         <button
-          onClick={handleStart}
+          onClick={startSorting}
           className="px-4 py-2 bg-blue-500 text-white rounded"
+          disabled={!selectedAlgorithm}
         >
           Start
         </button>
       )}
+
       {isSorting && (
-        <button
-          onClick={handlePause}
-          className="px-4 py-2 bg-orange-500 text-white rounded"
-        >
-          Pause
-        </button>
+        <>
+          <button
+            onClick={pauseAutoSorting}
+            className="px-4 py-2 bg-orange-500 text-white rounded"
+          >
+            Pause
+          </button>
+          <button
+            onClick={step}
+            className="px-4 py-2 bg-green-500 text-white rounded"
+            disabled={!selectedAlgorithm}
+          >
+            Step
+          </button>
+          <>
+            <button
+              onClick={startAutoSorting}
+              className="px-4 py-2 bg-green-500 text-white rounded"
+              disabled={!selectedAlgorithm}
+            >
+              Auto sort
+            </button>
+          </>
+        </>
       )}
-      {isSorting && selectedAlgorithm && ( 
-        <button
-          onClick={handleStep}
-          className="px-4 py-2 bg-green-500 text-white rounded"
-        >
-          Step
-        </button>
-      )}
+
       <button
-        onClick={handleReset}
+        onClick={resetArray}
         className="px-4 py-2 bg-red-500 text-white rounded"
       >
-        Reset
+        Generate New Array
       </button>
       <input
         type="range"
@@ -80,4 +79,3 @@ const Controls: React.FC = () => {
 };
 
 export default Controls;
-

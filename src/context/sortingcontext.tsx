@@ -1,6 +1,9 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useRef, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+
+import { AlgorithmInfo, algorithmInfoRecord } from "@/utils/algorithmInfo";
+import { bubbleSort, generateRandomArray, mergeSort, quickSort } from "@/utils/sortingAlgorithms";
 
 const ARRAY_SIZE = 10;
 
@@ -9,6 +12,11 @@ interface SortingContextProps {
     setArray: React.Dispatch<React.SetStateAction<number[]>>;
     isSorting: boolean;
     setIsSorting: React.Dispatch<React.SetStateAction<boolean>>;
+    isAutoSorting: boolean,
+    startSorting: () => void,
+    stopSorting: () => void,
+    startAutoSorting: () => void,
+    pauseAutoSorting: () => void,
     speed: number;
     setSpeed: React.Dispatch<React.SetStateAction<number>>;
     step: () => void;
@@ -16,6 +24,7 @@ interface SortingContextProps {
     selectedAlgorithm: string | null;
     setSelectedAlgorithm: React.Dispatch<React.SetStateAction<string | null>>;
     rerender: boolean,
+    algoInfo: AlgorithmInfo | null,
 }
 
 const SortingContext = createContext<SortingContextProps | undefined>(undefined);
@@ -33,51 +42,86 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
     const [array, setArray] = useState<number[]>([]);
     const [isSorting, setIsSorting] = useState(false);
+    const [isAutoSorting, setIsAutoSorting] = useState(false);
     const [speed, setSpeed] = useState(50);
     const [selectedAlgorithm, setSelectedAlgorithm] = useState<string | null>(null);
     const [rerender, setRerender] = useState(false);
+    const [algoInfo, setAlgoinfo] = useState<AlgorithmInfo | null>(null);
 
-    const bubbleSortGeneratorRef = useRef<Generator<number[]>>();
+    const currentAlgorithmGeneratorRef = useRef<Generator<number[]>>();
+
+    // Generate a new array on initial mount
+    useEffect(() => {
+        resetArray();
+      }, [])
 
     useEffect(() => {
-        // Generate initial random array
-        resetArray();
-    }, []);
+        if (selectedAlgorithm) {
+            currentAlgorithmGeneratorRef.current = undefined; // Reset the generator
+            setAlgoinfo(algorithmInfoRecord[selectedAlgorithm]);
+        }
+    }, [selectedAlgorithm])
 
-    const step = () => {
-        if (!isSorting) {
-            setIsSorting(true);
-            if (selectedAlgorithm === "bubbleSort") {
-                bubbleSortGeneratorRef.current = bubbleSort(array);
-            }
+    const step = useCallback(() => {
+        if (!currentAlgorithmGeneratorRef.current) {
+          // Initialize the generator based on the selected algorithm
+            if (selectedAlgorithm === "bubbleSort" ) {
+                currentAlgorithmGeneratorRef.current = bubbleSort(array);
+            } else if (selectedAlgorithm === "mergeSort") {
+                currentAlgorithmGeneratorRef.current = mergeSort(array);
+            } else if (selectedAlgorithm === "quickSort") {
+                currentAlgorithmGeneratorRef.current = quickSort(array, 0, array.length - 1);
+            } 
+        }
+    
+        const generator = currentAlgorithmGeneratorRef.current;
+        if (generator) {
+          const nextStep = generator.next();
+    
+          if (!nextStep.done) {
+            setArray(nextStep.value);
+            setRerender(prev => !prev); // Trigger re-render
+          } else {
+            setIsSorting(false);
+            setIsAutoSorting(false);
+            currentAlgorithmGeneratorRef.current = undefined; // Reset the generator
+          }
+        }
+      }, [selectedAlgorithm, array]);
+
+    useEffect(() => {
+        let intervalId: NodeJS.Timeout;
+
+        if (isAutoSorting) {
+            intervalId = setInterval(() => {
+                step();
+            }, 3000 / speed);
         }
 
-        if (isSorting) {
-            if (selectedAlgorithm === "bubbleSort") {
-                // Check if generator exists, if not, create a new one
-                if (!bubbleSortGeneratorRef.current) {
-                    bubbleSortGeneratorRef.current = bubbleSort(array);
-                }
+        return () => clearInterval(intervalId);
+    }, [isAutoSorting, speed, step]);
 
-                const generator = bubbleSortGeneratorRef.current;
-                const nextStep = generator.next();
-
-                if (!nextStep.done) {
-                    setArray(nextStep.value);
-                } else {
-                    setIsSorting(false);
-                    bubbleSortGeneratorRef.current = undefined;
-                }
-
-                // After updating the array, trigger a re-render
-                setRerender(prev => !prev);
-            }
-        }
+    const startSorting = () => {
+        setIsSorting(true);
     };
+
+    const startAutoSorting = () => {
+        setIsAutoSorting(true);
+        setIsSorting(true);
+    }
+
+    const stopSorting = () => {
+        setIsSorting(false);
+        setIsAutoSorting(false);
+    };
+
+    const pauseAutoSorting = () => {
+        setIsAutoSorting(false);
+    }
 
     const resetArray = () => {
         // Create a new random array and set it to the state
-        setArray(generateRandomArray(ARRAY_SIZE)); //TODO: Make size dynamic (maybe another selector?)
+        setArray(generateRandomArray(ARRAY_SIZE));
     };
 
     return (
@@ -87,6 +131,10 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
                 setArray,
                 isSorting,
                 setIsSorting,
+                isAutoSorting,
+                startAutoSorting,
+                startSorting,
+                stopSorting,
                 speed,
                 setSpeed,
                 step,
@@ -94,31 +142,11 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
                 selectedAlgorithm,
                 setSelectedAlgorithm,
                 rerender,
+                pauseAutoSorting,
+                algoInfo,
             }}
         >
             {children}
         </SortingContext.Provider>
     );
 };
-
-//TODO: Move to util.ts
-export function generateRandomArray(size: number, min = 5, max = 100): number[] {
-    const randomArray = [];
-    for (let i = 0; i < size; i++) {
-        randomArray.push(Math.floor(Math.random() * (max - min + 1)) + min);
-    }
-    return randomArray;
-}
-
-function* bubbleSort(arr: number[]): Generator<number[]> {
-    const n = arr.length;
-    for (let i = 0; i < n - 1; i++) {
-        for (let j = 0; j < n - i - 1; j++) {
-            if (arr[j] > arr[j + 1]) {
-                [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
-                yield [...arr]; // Yield a copy of the array after each swap
-            }
-        }
-    }
-    return arr; // Signal that the algorithm is finished
-}

@@ -1,7 +1,8 @@
 "use client";
 
-import { useSortingContext } from "@/context/sortingcontext";
 import React, { useState, useEffect } from "react";
+
+import { useSortingContext } from "@/context/sortingcontext";
 
 interface Algorithm {
   name: string;

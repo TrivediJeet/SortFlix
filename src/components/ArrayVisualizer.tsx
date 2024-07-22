@@ -6,42 +6,48 @@ import { FC, useEffect, useState } from "react";
 import { useSortingContext } from "@/context/sortingcontext";
 
 const ArrayVisualizer: FC = () => {
-    const { array, isSorting, rerender } = useSortingContext();
-    const [barHeights, setBarHeights] = useState<number[]>(array);
+  const { array, isSorting } = useSortingContext();
+  const [barHeights, setBarHeights] = useState<number[]>(array);
 
-    useEffect(() => {
-        if (isSorting) {
-            // Update the barHeights to reflect the new state of the array after each sorting step
-            setBarHeights(array);
-        } else {
-            // Reset the bar heights when not sorting
-            setBarHeights(array.map((val) => val));
-        }
-    }, [array, isSorting, rerender]);
+  useEffect(() => {
+    if (isSorting) {
+      setBarHeights(array);
+    } else {
+      setBarHeights(array.map((val) => val));
+    }
+  }, [array, isSorting]);
 
-    return (
-        <div className="flex gap-2 justify-center">
-            {barHeights.map((value, idx) => (
-                <motion.div
-                    key={idx}
-                    className="bg-blue-500"
-                    style={{
-                        height: `${value * 2}px`,
-                        width: "20px",
-                    }}
-                    layout // Enable layout animations
-                    initial={{ scaleY: 1 }}
-                    animate={{ scaleY: value / Math.max(...array) }} // Normalize the height
-                    transition={{
-                        type: "spring",
-                        stiffness: 300,
-                        damping: 10,
-                        duration: 0.3,
-                    }}
-                />
-            ))}
-        </div>
-    );
+  const BAR_WIDTH = 20; // Define bar width
+  const MAX_HEIGHT = 400; // Maximum bar height
+
+  // Calculate bar heights based on max value in array
+  const normalizedBarHeights = barHeights.map(
+    (value) => (value / Math.max(...array)) * MAX_HEIGHT
+  ); // This is where normalizedBarHeights is calculated
+
+  return (
+    <div
+      className="flex-1 flex flex-col items-end"
+      style={{ height: `${MAX_HEIGHT}px` }} // Fixed container height
+    >
+      <div className="flex space-x-2 items-end">
+        {normalizedBarHeights.map((height, idx) => (
+          <motion.div
+            key={idx}
+            className="bg-blue-500 origin-bottom"
+            style={{
+              height: `${height}px`,
+              width: `${BAR_WIDTH}px`,
+            }}
+            layout // Enable layout animations
+            initial={{ scaleY: 0 }}
+            animate={{ scaleY: 1 }}
+            transition={{ type: "spring", stiffness: 300, damping: 80 }}
+          />
+        ))}
+      </div>
+    </div>
+  );
 };
 
 export default ArrayVisualizer;
