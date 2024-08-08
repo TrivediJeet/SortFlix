@@ -3,18 +3,27 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 
 import { AlgorithmInfo, algorithmInfoRecord } from "@/utils/algorithmInfo";
-import { bubbleSort, generateRandomArray, mergeSort, quickSort } from "@/utils/sortingAlgorithms";
+import { bubbleSort, countingSort, generateRandomArray, heapSort, insertionSort, mergeSort, quickSort, selectionSort, shellSort } from "@/utils/sortingAlgorithms";
 
 const ARRAY_SIZE = 10;
+
+type AlgorithmFunction = (arr: number[], ...args: any[]) => Generator<number[]>;
+
+const algorithmMap: Record<string, AlgorithmFunction> = {
+    bubbleSort,
+    mergeSort,
+    quickSort,
+    insertionSort,
+    selectionSort,
+    heapSort,
+    shellSort,
+    countingSort,
+};
 
 interface SortingContextProps {
     array: number[];
     setArray: React.Dispatch<React.SetStateAction<number[]>>;
-    isSorting: boolean;
-    setIsSorting: React.Dispatch<React.SetStateAction<boolean>>;
     isAutoSorting: boolean,
-    startSorting: () => void,
-    stopSorting: () => void,
     startAutoSorting: () => void,
     pauseAutoSorting: () => void,
     speed: number;
@@ -41,7 +50,6 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
     children,
 }) => {
     const [array, setArray] = useState<number[]>([]);
-    const [isSorting, setIsSorting] = useState(false);
     const [isAutoSorting, setIsAutoSorting] = useState(false);
     const [speed, setSpeed] = useState(50);
     const [selectedAlgorithm, setSelectedAlgorithm] = useState<string | null>(null);
@@ -53,7 +61,7 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
     // Generate a new array on initial mount
     useEffect(() => {
         resetArray();
-      }, [])
+    }, [])
 
     useEffect(() => {
         if (selectedAlgorithm) {
@@ -64,30 +72,41 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
 
     const step = useCallback(() => {
         if (!currentAlgorithmGeneratorRef.current) {
-          // Initialize the generator based on the selected algorithm
-            if (selectedAlgorithm === "bubbleSort" ) {
-                currentAlgorithmGeneratorRef.current = bubbleSort(array);
-            } else if (selectedAlgorithm === "mergeSort") {
-                currentAlgorithmGeneratorRef.current = mergeSort(array);
-            } else if (selectedAlgorithm === "quickSort") {
-                currentAlgorithmGeneratorRef.current = quickSort(array, 0, array.length - 1);
-            } 
+            // Initialize the generator based on the selected algorithm
+            const algorithmFunction = algorithmMap[selectedAlgorithm!];
+
+            if (algorithmFunction) {
+                // Handle quickSort separately due to extra arguments
+                if (selectedAlgorithm === "quickSort") {
+                    currentAlgorithmGeneratorRef.current = algorithmFunction(array, 0, array.length - 1);
+                } else {
+                    currentAlgorithmGeneratorRef.current = algorithmFunction(array);
+                }
+            }
         }
-    
+
         const generator = currentAlgorithmGeneratorRef.current;
+
         if (generator) {
-          const nextStep = generator.next();
-    
-          if (!nextStep.done) {
-            setArray(nextStep.value);
-            setRerender(prev => !prev); // Trigger re-render
-          } else {
-            setIsSorting(false);
-            setIsAutoSorting(false);
-            currentAlgorithmGeneratorRef.current = undefined; // Reset the generator
-          }
+            const nextStep = generator.next();
+
+            if (!nextStep.done) {
+                setArray(nextStep.value);
+                // setRerender(prev => !prev); // Trigger re-render
+            } else {
+                setIsAutoSorting(false);
+                currentAlgorithmGeneratorRef.current = undefined; // Reset the generator
+            }
+
+            if (selectedAlgorithm === "bubbleSort") {
+                // ...
+                if (!nextStep.done) {
+                    setArray(nextStep.value);
+                }
+            }
         }
-      }, [selectedAlgorithm, array]);
+
+    }, [selectedAlgorithm, array]);
 
     useEffect(() => {
         let intervalId: NodeJS.Timeout;
@@ -101,26 +120,15 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
         return () => clearInterval(intervalId);
     }, [isAutoSorting, speed, step]);
 
-    const startSorting = () => {
-        setIsSorting(true);
-    };
-
     const startAutoSorting = () => {
         setIsAutoSorting(true);
-        setIsSorting(true);
     }
-
-    const stopSorting = () => {
-        setIsSorting(false);
-        setIsAutoSorting(false);
-    };
 
     const pauseAutoSorting = () => {
         setIsAutoSorting(false);
     }
 
     const resetArray = () => {
-        // Create a new random array and set it to the state
         setArray(generateRandomArray(ARRAY_SIZE));
     };
 
@@ -129,12 +137,8 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
             value={{
                 array,
                 setArray,
-                isSorting,
-                setIsSorting,
                 isAutoSorting,
                 startAutoSorting,
-                startSorting,
-                stopSorting,
                 speed,
                 setSpeed,
                 step,
@@ -150,3 +154,8 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
         </SortingContext.Provider>
     );
 };
+
+// TODO: Add highlighting to further enhance the visualization.
+// Comparison-Based Sorts (Bubble, Selection, Insertion): Highlight the two bars being compared.
+// Merge Sort: Highlight the subarrays being merged and potentially the indices where merging is happening.
+// Quick Sort: Highlight the pivot element and the elements being compared to it during partitioning.

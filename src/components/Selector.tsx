@@ -12,11 +12,17 @@ interface Algorithm {
 const AlgorithmSelector: React.FC = () => {
   const [selectedAlgorithm, setSelectedAlgorithm] = useState<Algorithm | null>(null);
   const { setSelectedAlgorithm: contextSetSelectedAlgorithm } = useSortingContext();
-
+  
   const algorithms: Algorithm[] = [
     { name: "Bubble Sort", value: "bubbleSort" },
     { name: "Merge Sort", value: "mergeSort" },
     { name: "Quick Sort", value: "quickSort" },
+    { name: "Insertion Sort", value: "insertionSort" },
+    { name: "Selection Sort", value: "selectionSort" },
+    { name: "Heap Sort", value: "heapSort" },
+    { name: "Shell Sort", value: "shellSort" },
+    { name: "Counting Sort", value: "countingSort" },
+    
   ];
 
   useEffect(() => {

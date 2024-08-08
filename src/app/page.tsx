@@ -10,14 +10,19 @@ import { SortingProvider } from "@/context/sortingcontext";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <SortingProvider>
-        <Info />
+    <SortingProvider>
+      <div className="h-screen w-screen flex flex-col items-center justify-center">
         <Selector />
         <ArrayVisualizer />
         <Controls />
-        <Snippet />
-      </SortingProvider>
-    </main>
+      </div>
+
+      {/* 
+        <div>
+          <Info />
+          <Snippet />
+        </div>
+      */}
+    </SortingProvider>
   );
 }

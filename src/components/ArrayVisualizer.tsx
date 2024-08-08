@@ -6,29 +6,25 @@ import { FC, useEffect, useState } from "react";
 import { useSortingContext } from "@/context/sortingcontext";
 
 const ArrayVisualizer: FC = () => {
-  const { array, isSorting } = useSortingContext();
+  const { array } = useSortingContext();
   const [barHeights, setBarHeights] = useState<number[]>(array);
 
   useEffect(() => {
-    if (isSorting) {
       setBarHeights(array);
-    } else {
-      setBarHeights(array.map((val) => val));
-    }
-  }, [array, isSorting]);
+  }, [array]);
 
   const BAR_WIDTH = 20; // Define bar width
-  const MAX_HEIGHT = 400; // Maximum bar height
+  const MAX_HEIGHT = 200; // Maximum bar height
 
   // Calculate bar heights based on max value in array
   const normalizedBarHeights = barHeights.map(
     (value) => (value / Math.max(...array)) * MAX_HEIGHT
-  ); // This is where normalizedBarHeights is calculated
+  );
 
   return (
     <div
-      className="flex-1 flex flex-col items-end"
-      style={{ height: `${MAX_HEIGHT}px` }} // Fixed container height
+      className="flex flex-col items-center"
+      style={{ height: `200px` }} // Fixed container height
     >
       <div className="flex space-x-2 items-end">
         {normalizedBarHeights.map((height, idx) => (
