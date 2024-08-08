@@ -32,7 +32,6 @@ interface SortingContextProps {
     resetArray: () => void;
     selectedAlgorithm: string | null;
     setSelectedAlgorithm: React.Dispatch<React.SetStateAction<string | null>>;
-    rerender: boolean,
     algoInfo: AlgorithmInfo | null,
 }
 
@@ -53,7 +52,6 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
     const [isAutoSorting, setIsAutoSorting] = useState(false);
     const [speed, setSpeed] = useState(50);
     const [selectedAlgorithm, setSelectedAlgorithm] = useState<string | null>(null);
-    const [rerender, setRerender] = useState(false);
     const [algoInfo, setAlgoinfo] = useState<AlgorithmInfo | null>(null);
 
     const currentAlgorithmGeneratorRef = useRef<Generator<number[]>>();
@@ -92,14 +90,12 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
 
             if (!nextStep.done) {
                 setArray(nextStep.value);
-                // setRerender(prev => !prev); // Trigger re-render
             } else {
                 setIsAutoSorting(false);
                 currentAlgorithmGeneratorRef.current = undefined; // Reset the generator
             }
 
             if (selectedAlgorithm === "bubbleSort") {
-                // ...
                 if (!nextStep.done) {
                     setArray(nextStep.value);
                 }
@@ -145,7 +141,6 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
                 resetArray,
                 selectedAlgorithm,
                 setSelectedAlgorithm,
-                rerender,
                 pauseAutoSorting,
                 algoInfo,
             }}

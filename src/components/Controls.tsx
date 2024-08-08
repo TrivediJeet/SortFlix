@@ -21,45 +21,45 @@ const Controls: React.FC = () => {
   };
 
   return (
-    <div className="mt-4 flex justify-center space-x-4">
-      {/* <button
-        onClick={pauseAutoSorting}
-        className="px-4 py-2 bg-orange-500 text-white rounded"
-      >
-        Pause
-      </button> */}
+    <div className="mt-4 flex flex-col justify-center items-center space-y-4">
+      <div className="flex space-x-4">
+        <button
+          onClick={step}
+          className="px-4 py-2 bg-green-500 text-white rounded"
+          disabled={!selectedAlgorithm}
+        >
+          Step
+        </button>
 
-      <button
-        onClick={step}
-        className="px-4 py-2 bg-green-500 text-white rounded"
-        disabled={!selectedAlgorithm}
-      >
-        Step
-      </button>
+        <button
+          onClick={isAutoSorting ? pauseAutoSorting : startAutoSorting}
+          className="px-4 py-2 bg-green-500 text-white rounded"
+          disabled={!selectedAlgorithm}
+        >
+          {isAutoSorting ? "Pause" : "Auto Sort"}
+        </button>
 
-      <button
-        onClick={isAutoSorting ? pauseAutoSorting : startAutoSorting}
-        className="px-4 py-2 bg-green-500 text-white rounded"
-        disabled={!selectedAlgorithm}
-      >
-        {isAutoSorting ? "Pause" : "Auto Sort"}
-      </button>
-
-      <button
-        onClick={resetArray}
-        className="px-4 py-2 bg-red-500 text-white rounded"
-      >
-        Generate New Array
-      </button>
-
-      <input
-        type="range"
-        min="1"
-        max="100"
-        value={speed}
-        onChange={handleSpeedChange}
-        className="w-40"
-      />
+        <button
+          onClick={resetArray}
+          className="px-4 py-2 bg-red-500 text-white rounded"
+        >
+          Generate New Array
+        </button>
+      </div>
+      <div className="flex items-center justify-center">
+        <label htmlFor="speedSlider" className="flex-grow mr-2">
+          Speed
+        </label>
+        <input
+          id="speedSlider"
+          type="range"
+          min="1"
+          max="100"
+          value={speed}
+          onChange={handleSpeedChange}
+          className="w-40 my-0"
+        />
+      </div>
     </div>
   );
 };
