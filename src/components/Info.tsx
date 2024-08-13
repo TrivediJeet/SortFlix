@@ -4,7 +4,7 @@ import React from "react";
 
 import { useSortingContext } from "@/context/sortingcontext";
 
-const Info: React.FC = () => {
+const Info = ({...props}) => {
     const {
         algoInfo
     } = useSortingContext();
@@ -12,11 +12,11 @@ const Info: React.FC = () => {
     return (
         <>
             {algoInfo && (
-                <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="w-[90vw] 2xl:w-[35%] bg-white rounded-lg shadow-md p-6 ">
                     <h2 className="text-xl font-semibold mb-2">{algoInfo.title}</h2>
-                    <p className="text-gray-600 mb-4">{algoInfo.description}</p>
-                    <div className="flex justify-between">
-                        <p>
+                    <p className="text-gray-600 mb-4">{algoInfo.description}</p>        
+                    <div>
+                        <p> 
                             <strong>Time Complexity:</strong> {algoInfo.complexity.time}
                         </p>
                         <p>

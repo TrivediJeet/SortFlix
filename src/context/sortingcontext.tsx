@@ -4,8 +4,9 @@ import React, { createContext, useCallback, useContext, useEffect, useRef, useSt
 
 import { AlgorithmInfo, algorithmInfoRecord } from "@/utils/algorithmInfo";
 import { bubbleSort, countingSort, generateRandomArray, heapSort, insertionSort, mergeSort, quickSort, selectionSort, shellSort } from "@/utils/sortingAlgorithms";
+import { sortingAlgorithms } from "@/components/Selector";
 
-const ARRAY_SIZE = 10;
+const ARRAY_SIZE = 25;
 
 type AlgorithmFunction = (arr: number[], ...args: any[]) => Generator<number[]>;
 
@@ -20,6 +21,7 @@ const algorithmMap: Record<string, AlgorithmFunction> = {
     countingSort,
 };
 
+
 interface SortingContextProps {
     array: number[];
     setArray: React.Dispatch<React.SetStateAction<number[]>>;
@@ -30,8 +32,8 @@ interface SortingContextProps {
     setSpeed: React.Dispatch<React.SetStateAction<number>>;
     step: () => void;
     resetArray: () => void;
-    selectedAlgorithm: string | null;
-    setSelectedAlgorithm: React.Dispatch<React.SetStateAction<string | null>>;
+    selectedAlgorithm: string;
+    setSelectedAlgorithm: React.Dispatch<React.SetStateAction<string>>;
     algoInfo: AlgorithmInfo | null,
 }
 
@@ -51,15 +53,15 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
     const [array, setArray] = useState<number[]>([]);
     const [isAutoSorting, setIsAutoSorting] = useState(false);
     const [speed, setSpeed] = useState(50);
-    const [selectedAlgorithm, setSelectedAlgorithm] = useState<string | null>(null);
+    const [selectedAlgorithm, setSelectedAlgorithm] = useState<string>(sortingAlgorithms["Bubble Sort"]);
     const [algoInfo, setAlgoinfo] = useState<AlgorithmInfo | null>(null);
 
     const currentAlgorithmGeneratorRef = useRef<Generator<number[]>>();
 
-    // Generate a new array on initial mount
+
     useEffect(() => {
         resetArray();
-    }, [])
+      }, [])
 
     useEffect(() => {
         if (selectedAlgorithm) {
@@ -78,7 +80,7 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
                 if (selectedAlgorithm === "quickSort") {
                     currentAlgorithmGeneratorRef.current = algorithmFunction(array, 0, array.length - 1);
                 } else {
-                    currentAlgorithmGeneratorRef.current = algorithmFunction(array);
+                    currentAlgorithmGeneratorRef.current = algorithmFunction(array);    
                 }
             }
         }
@@ -125,6 +127,7 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
     }
 
     const resetArray = () => {
+        // Create a new random array and set it to the state
         setArray(generateRandomArray(ARRAY_SIZE));
     };
 
@@ -150,7 +153,3 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
     );
 };
 
-// TODO: Add highlighting to further enhance the visualization.
-// Comparison-Based Sorts (Bubble, Selection, Insertion): Highlight the two bars being compared.
-// Merge Sort: Highlight the subarrays being merged and potentially the indices where merging is happening.
-// Quick Sort: Highlight the pivot element and the elements being compared to it during partitioning.
