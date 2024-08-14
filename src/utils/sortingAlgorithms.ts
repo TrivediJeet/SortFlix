@@ -30,7 +30,7 @@ export function* bubbleSort(
   const n = arr.length;
   for (let i = 0; i < n - 1; i++) {
     for (let j = 0; j < n - i - 1; j++) {
-        setComparisonIndices([j, j + 1]);
+      setComparisonIndices([j, j + 1]);
       if (arr[j] > arr[j + 1]) {
         [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
         setArray([...arr]); // Update the array in state after every swap
@@ -114,19 +114,27 @@ function* partition(
 }
 
 // Insertion Sort
-export function* insertionSort(arr: number[]): Generator<number[]> {
+export function* insertionSort(
+  arr: number[],
+  setArray: React.Dispatch<React.SetStateAction<number[]>>,
+  setComparisonIndices: React.Dispatch<React.SetStateAction<number[]>>
+): Generator<number[]> {
   for (let i = 1; i < arr.length; i++) {
     let currentVal = arr[i];
     let j = i - 1;
 
     while (j >= 0 && arr[j] > currentVal) {
+      
+      setComparisonIndices([i, j])
       arr[j + 1] = arr[j];
       j--;
-      yield [...arr]; // Yield after each comparison/shift
+      yield []; // Yield after each comparison/shift
     }
 
+    setComparisonIndices([i, j])
     arr[j + 1] = currentVal;
-    yield [...arr]; // Yield after the insertion
+    setArray([...arr])
+    yield []; // Yield after the insertion
   }
 }
 

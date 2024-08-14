@@ -100,7 +100,7 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
     if (!currentAlgorithmGeneratorRef.current) {
       // Initialize the generator based on the selected algorithm
       const algorithmFunction = algorithmMap[selectedAlgorithm!];
-      currentAlgorithmGeneratorRef.current = algorithmFunction(array, setArray, setComparisonIndices);
+      currentAlgorithmGeneratorRef.current = algorithmFunction([...array], setArray, setComparisonIndices);
     }
 
     const generator = currentAlgorithmGeneratorRef.current;
