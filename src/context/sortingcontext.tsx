@@ -28,7 +28,7 @@ const ARRAY_SIZE = 25;
 type AlgorithmFunction = (
   arr: number[],
   setArray: React.Dispatch<React.SetStateAction<number[]>>,
-  setComparisonIndices: React.Dispatch<React.SetStateAction<number[]>>,
+  setComparisonIndices: React.Dispatch<React.SetStateAction<comparisonIndices>>,
   ...args: any[]
 ) => Generator<number[]>;
 
@@ -56,8 +56,14 @@ interface SortingContextProps {
   selectedAlgorithm: string;
   setSelectedAlgorithm: React.Dispatch<React.SetStateAction<string>>;
   algoInfo: AlgorithmInfo | null;
-  comparisonIndices: number[];
+  comparisonIndices: comparisonIndices;
 }
+
+export type comparisonIndices = {
+  indicies: number[];
+  matchIndex?: number | null;
+  transparentIndex?: number | null;
+};
 
 const SortingContext = createContext<SortingContextProps | undefined>(
   undefined
@@ -81,18 +87,17 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
     sortingAlgorithms["Bubble Sort"]
   );
   const [algoInfo, setAlgoinfo] = useState<AlgorithmInfo | null>(null);
-  const [comparisonIndices, setComparisonIndices] = useState<number[]>([]);
+  const [comparisonIndices, setComparisonIndices] = useState<comparisonIndices>(
+    { indicies: [], matchIndex: null, transparentIndex: null }
+  );
 
   const currentAlgorithmGeneratorRef = useRef<Generator<number[]>>();
-
-  useEffect(() => {
-    resetArray();
-  }, []);
 
   useEffect(() => {
     if (selectedAlgorithm) {
       currentAlgorithmGeneratorRef.current = undefined; // Reset the generator
       setAlgoinfo(algorithmInfoRecord[selectedAlgorithm]);
+      resetComparison();
     }
   }, [selectedAlgorithm]);
 
@@ -100,7 +105,11 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
     if (!currentAlgorithmGeneratorRef.current) {
       // Initialize the generator based on the selected algorithm
       const algorithmFunction = algorithmMap[selectedAlgorithm!];
-      currentAlgorithmGeneratorRef.current = algorithmFunction([...array], setArray, setComparisonIndices);
+      currentAlgorithmGeneratorRef.current = algorithmFunction(
+        [...array],
+        setArray,
+        setComparisonIndices
+      );
     }
 
     const generator = currentAlgorithmGeneratorRef.current;
@@ -135,12 +144,24 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsAutoSorting(false);
   };
 
-  const resetArray = () => {
+  const resetArray = useCallback(() => {
     // Create a new random array and set it to the state
     setArray(generateRandomArray(ARRAY_SIZE));
-    setComparisonIndices([]);
+    resetComparison();
     currentAlgorithmGeneratorRef.current = undefined;
-  };
+  }, []);
+
+  useEffect(() => {
+    resetArray();
+  }, [resetArray]);
+
+  function resetComparison() {
+    setComparisonIndices({
+      indicies: [],
+      matchIndex: null,
+      transparentIndex: null,
+    });
+  }
 
   return (
     <SortingContext.Provider

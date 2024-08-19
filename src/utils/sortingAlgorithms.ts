@@ -1,3 +1,5 @@
+import { comparisonIndices } from "@/context/sortingcontext";
+
 export function generateRandomArray(
   size: number,
   min = 5,
@@ -25,12 +27,14 @@ export const sortingAlgorithmsStringRecord: Record<string, string> = {
 export function* bubbleSort(
   arr: number[],
   setArray: React.Dispatch<React.SetStateAction<number[]>>,
-  setComparisonIndices: React.Dispatch<React.SetStateAction<number[]>>
+  setComparisonIndices: React.Dispatch<React.SetStateAction<comparisonIndices>>
 ): Generator<number[]> {
   const n = arr.length;
   for (let i = 0; i < n - 1; i++) {
     for (let j = 0; j < n - i - 1; j++) {
-      setComparisonIndices([j, j + 1]);
+      setComparisonIndices({
+        indicies: [j, j + 1],
+      });
       if (arr[j] > arr[j + 1]) {
         [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
         setArray([...arr]); // Update the array in state after every swap
@@ -81,7 +85,7 @@ export function* mergeSort(arr: number[]): Generator<number[]> {
 export function* quickSort(
   arr: number[],
   setArray: React.Dispatch<React.SetStateAction<number[]>>,
-  setComparisonIndices: React.Dispatch<React.SetStateAction<number[]>>,
+  setComparisonIndices: React.Dispatch<React.SetStateAction<comparisonIndices>>,
   low: number = 0,
   high: number = arr.length - 1
 ): Generator<number[], void, undefined> {
@@ -117,23 +121,42 @@ function* partition(
 export function* insertionSort(
   arr: number[],
   setArray: React.Dispatch<React.SetStateAction<number[]>>,
-  setComparisonIndices: React.Dispatch<React.SetStateAction<number[]>>
+  setComparisonIndices: React.Dispatch<React.SetStateAction<comparisonIndices>>
 ): Generator<number[]> {
   for (let i = 1; i < arr.length; i++) {
     let currentVal = arr[i];
     let j = i - 1;
+    setComparisonIndices({ //Reset the comparison indicies through every iteration (and highlight the element being evaluated)
+      indicies: [],
+      transparentIndex: i,
+    });
 
     while (j >= 0 && arr[j] > currentVal) {
-      
-      setComparisonIndices([i, j])
+      setComparisonIndices({ indicies: [i, j], transparentIndex: i }); //Highlight the elements being compared
       arr[j + 1] = arr[j];
       j--;
       yield []; // Yield after each comparison/shift
     }
 
-    setComparisonIndices([i, j])
+    setComparisonIndices({ indicies: [i, j] }); //If there was no match, reset the transparency index as well as the matchIndex
+    
+    if (arr[j + 1] !== currentVal) {
+      setComparisonIndices({
+        indicies: [i, j], 
+        matchIndex: j + 1,  
+        transparentIndex: i,
+      });
+
+      yield []; //Yield after setting comparison indices (highlighting match green)
+    }
+
     arr[j + 1] = currentVal;
-    setArray([...arr])
+    setArray([...arr]);
+    setComparisonIndices({
+      indicies: [],
+      matchIndex: null,
+      transparentIndex: null,
+    });
     yield []; // Yield after the insertion
   }
 }

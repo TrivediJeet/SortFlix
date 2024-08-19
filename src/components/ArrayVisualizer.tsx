@@ -17,23 +17,29 @@ const ArrayVisualizer: FC = () => {
 
     handleResize();
     // Initial check
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
 
-    return () => window.removeEventListener('resize', handleResize);
-
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   return (
-    <div
-      className="flex justify-center items-end self-center h-[200px] md:h-[400px] relative"
-    >
+    <div className="flex justify-center items-end self-center h-[200px] md:h-[400px] relative">
       <div className="flex items-end space-x-1 md:space-x-2">
         {array.map((height, idx) => (
-          <motion.div key={idx} layoutId={`bar-${idx}`} className="relative"> {/* Add layoutId */}
+          <motion.div key={idx} layoutId={`bar-${idx}`} className="relative">
+            {/* Add layoutId */}
             <motion.div
               className={`${
-                comparisonIndices.includes(idx) ? "bg-red-500" : "bg-blue-500"
-              } origin-bottom w-[4px] md:w-[20px]`}
+                comparisonIndices.indicies.includes(idx)
+                  ? "bg-red-500"
+                  : "bg-blue-500"
+              } ${
+                comparisonIndices.matchIndex === idx && "bg-green-500"
+              } 
+              ${
+                comparisonIndices.transparentIndex === idx && "bg-transparent"
+              } 
+              origin-bottom w-[4px] md:w-[20px]`}
               style={{
                 height: isMediumScreen ? `${height * 4}px` : `${height * 2}px`,
               }}
@@ -41,11 +47,11 @@ const ArrayVisualizer: FC = () => {
               animate={{ scaleY: 1 }}
               transition={{ type: "spring", stiffness: 300, damping: 80 }}
             />
-            <motion.div 
-              className="absolute text-xs text-white -top-4" 
+            <motion.div
+              className="absolute text-xs text-white -top-4"
               layoutId={`label-${idx}`} // Add layoutId
             >
-              {height} 
+              {height}
             </motion.div>
           </motion.div>
         ))}
