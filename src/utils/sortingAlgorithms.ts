@@ -36,6 +36,9 @@ export function* bubbleSort(
         indicies: [j, j + 1],
       });
       if (arr[j] > arr[j + 1]) {
+        setComparisonIndices({indicies: [j], matchIndex: j + 1 });
+        yield [];
+
         [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
         setArray([...arr]); // Update the array in state after every swap
       }
