@@ -93,7 +93,7 @@ export function* quickSort(
   high: number = arr.length - 1
 ): Generator<number[], void, undefined> {
   if (low < high) {
-    const pivotIndex = yield* partition(arr, low, high);
+    const pivotIndex = yield* partition(arr, low, high, setArray, setComparisonIndices);
     yield* quickSort(arr, setArray, setComparisonIndices, low, pivotIndex - 1);
     yield* quickSort(arr, setArray, setComparisonIndices, pivotIndex + 1, high);
   }
@@ -103,20 +103,34 @@ export function* quickSort(
 function* partition(
   arr: number[],
   low: number,
-  high: number
+  high: number,
+  setArray: React.Dispatch<React.SetStateAction<number[]>>,
+  setComparisonIndices: React.Dispatch<React.SetStateAction<comparisonIndices>>,
 ): Generator<number[]> {
   const pivot = arr[high];
+  // Generate the indices array using Array.from and a mapping function
+  const indices = Array.from({ length: high - low + 1 }, (_, index) => low + index);
+  
+  setComparisonIndices({indicies: indices, matchIndex: high })
   let i = low - 1;
 
   for (let j = low; j < high; j++) {
+    setComparisonIndices({indicies: indices, matchIndex: high, iteratorIndex: j, swapIndices: [i + 1] })
+    yield [];
     if (arr[j] < pivot) {
       i++;
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-      yield [...arr]; // Yield a copy of the array after each swap
+      if(arr[i] !== arr[j]) {
+        setComparisonIndices({ indicies: indices, matchIndex: high, swapIndices: [i, j] });
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+        setArray([...arr]);
+        yield []; // Yield a copy of the array after each swap
+      }
     }
   }
+
   [arr[i + 1], arr[high]] = [arr[high], arr[i + 1]];
-  yield [...arr]; // Yield after placing the pivot
+  setArray([...arr]);
+  yield []; // Yield after placing the pivot
   return i + 1;
 }
 

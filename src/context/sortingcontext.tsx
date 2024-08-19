@@ -63,6 +63,8 @@ export type comparisonIndices = {
   indicies: number[];
   matchIndex?: number | null;
   transparentIndex?: number | null;
+  iteratorIndex?: number | null;
+  swapIndices?: number[];
 };
 
 const SortingContext = createContext<SortingContextProps | undefined>(

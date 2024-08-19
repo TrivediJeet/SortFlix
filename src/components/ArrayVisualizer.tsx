@@ -34,10 +34,16 @@ const ArrayVisualizer: FC = () => {
                   ? "bg-red-500"
                   : "bg-blue-500"
               } ${
-                comparisonIndices.matchIndex === idx && "bg-green-500"
+                comparisonIndices.matchIndex === idx && "!bg-green-500"
               } 
               ${
                 comparisonIndices.transparentIndex === idx && "bg-transparent"
+              }
+              ${
+                comparisonIndices.iteratorIndex === idx && "bg-yellow-500"
+              }
+              ${
+                comparisonIndices.swapIndices?.includes(idx) && "bg-purple-500"
               } 
               origin-bottom w-[4px] md:w-[20px]`}
               style={{
@@ -48,7 +54,7 @@ const ArrayVisualizer: FC = () => {
               transition={{ type: "spring", stiffness: 300, damping: 80 }}
             />
             <motion.div
-              className="absolute text-xs text-white -top-4"
+              className="absolute text-xs text-white -top-4 hidden md:block"
               layoutId={`label-${idx}`} // Add layoutId
             >
               {height}
