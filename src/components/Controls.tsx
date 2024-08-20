@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-// import { Button } from "src/components/ui/button";
 import { useSortingContext } from "@/context/sortingcontext";
 
 const Controls: React.FC = () => {
@@ -47,7 +46,7 @@ const Controls: React.FC = () => {
         {isAutoSorting ? 'Pause' : 'Auto Sort'}
       </button> 
 
-      <label htmlFor="speed" className="text-gray-700 self-center my-1">Sorting Speed</label>
+      <label htmlFor="speed" className="text-white self-center my-1">Sorting Speed</label>
       <input
         id="speed"
         type="range"
