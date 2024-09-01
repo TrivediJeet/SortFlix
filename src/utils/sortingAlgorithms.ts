@@ -14,7 +14,29 @@ export function generateRandomArray(
 
 // String representation of each algorithm for use in templates (codeBlock snippets, etc.)
 export const sortingAlgorithmsStringRecord: Record<string, string> = {
-  bubbleSort: bubbleSort.toString(),
+  bubbleSort: `export function* bubbleSort(
+  arr: number[],
+  setArray: React.Dispatch<React.SetStateAction<number[]>>,
+  setComparisonIndices: React.Dispatch<React.SetStateAction<comparisonIndices>>
+): Generator<number[]> {
+  const n = arr.length;
+  for (let i = 0; i < n - 1; i++) {
+    for (let j = 0; j < n - i - 1; j++) {
+      setComparisonIndices({
+        indicies: [j, j + 1],
+      });
+      if (arr[j] > arr[j + 1]) {
+        setComparisonIndices({ indicies: [j], matchIndex: j + 1 });
+        yield [];
+
+        [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+        setArray([...arr]); // Update the array in state after every swap
+      }
+      yield [];
+    }
+  }
+  return arr; // Signal that the algorithm is finished
+}`,
   mergeSort: mergeSort.toString(),
   // TODO: Waddu heck!?, perhaps use another third party snippet library?
   quickSort: `export function* quickSort(
@@ -31,7 +53,49 @@ export const sortingAlgorithmsStringRecord: Record<string, string> = {
     }
     yield arr; // Yield the final sorted array
   }`,
-  insertionSort: insertionSort.toString(),
+  insertionSort: `export function* insertionSort(
+  arr: number[],
+  setArray: React.Dispatch<React.SetStateAction<number[]>>,
+  setComparisonIndices: React.Dispatch<React.SetStateAction<comparisonIndices>>
+): Generator<number[]> {
+  for (let i = 1; i < arr.length; i++) {
+    let currentVal = arr[i];
+    let j = i - 1;
+    setComparisonIndices({
+      //Reset the comparison indicies through every iteration (and highlight the element being evaluated)
+      indicies: [],
+      transparentIndex: i,
+    });
+
+    while (j >= 0 && arr[j] > currentVal) {
+      setComparisonIndices({ indicies: [i, j], transparentIndex: i }); //Highlight the elements being compared
+      arr[j + 1] = arr[j];
+      j--;
+      yield []; // Yield after each comparison/shift
+    }
+
+    setComparisonIndices({ indicies: [i, j] }); //If there was no match, reset the transparency index as well as the matchIndex
+
+    if (arr[j + 1] !== currentVal) {
+      setComparisonIndices({
+        indicies: [i, j],
+        matchIndex: j + 1,
+        transparentIndex: i,
+      });
+
+      yield []; //Yield after setting comparison indices (highlighting match green)
+    }
+
+    arr[j + 1] = currentVal;
+    setArray([...arr]);
+    setComparisonIndices({
+      indicies: [],
+      matchIndex: null,
+      transparentIndex: null,
+    });
+    yield []; // Yield after the insertion
+  }
+}`,
   selectionSort: selectionSort.toString(),
   heapSort: heapSort.toString(),
   shellSort: shellSort.toString(),

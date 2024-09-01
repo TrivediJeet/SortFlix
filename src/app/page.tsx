@@ -17,15 +17,13 @@ export default function Home() {
           className="text-center text-[40px] md:text-5xl"
           words="SortFlix"
         />
-        <div className="flex flex-col items-center justify-center w-[90vw] 2xl:w-[35%] bg-black rounded-lg shadow-md p-6 mt-[-2rem]">
+        <div className="flex flex-col items-center justify-center w-[90vw] 2xl:w-[50%] bg-black rounded-lg shadow-md p-6 mt-[-2rem]">
           <Selector />
           <ArrayVisualizer />
           <Controls />
         </div>
         <Info />
-        <div className="mb-8">
-          <Snippet />
-        </div>
+        <Snippet />
       </SortingProvider>
     </main>
   );

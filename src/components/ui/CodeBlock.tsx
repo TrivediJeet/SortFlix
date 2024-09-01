@@ -14,6 +14,13 @@ const CodeBlock: React.FC<codeBlockProps> = ({ code, language = "javascript", sh
       showLineNumbers={showLineNumbers}
       theme={dracula}
       wrapLongLines={true}
+      customStyle={{
+        display: "block",
+        width: "100%"
+      }}
+      codeBlockStyle={{
+        background: "red",
+      }}
     />
   )
 }

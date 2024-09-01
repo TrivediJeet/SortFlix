@@ -10,9 +10,9 @@ const Snippet = ({...props}) => {
   } = useSortingContext();
 
   return (
-    <div className='w-[90vw] 2xl:w-[35%]'>
+    <div className='w-[90vw] 2xl:w-[50%] mb-8'>
       {selectedAlgorithm && ( 
-        <CodeBlock code={sortingAlgorithmsStringRecord[selectedAlgorithm]}  />
+        <CodeBlock code={sortingAlgorithmsStringRecord[selectedAlgorithm]} />
       )}
     </div>
   )
